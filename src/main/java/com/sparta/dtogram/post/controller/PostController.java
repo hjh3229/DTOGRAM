@@ -5,6 +5,7 @@ import com.sparta.dtogram.common.security.UserDetailsImpl;
 import com.sparta.dtogram.post.dto.PostListResponseDto;
 import com.sparta.dtogram.post.dto.PostRequestDto;
 import com.sparta.dtogram.post.dto.PostResponseDto;
+import com.sparta.dtogram.post.dto.UpdatePostRequestDto;
 import com.sparta.dtogram.post.service.PostService;
 import com.sparta.dtogram.common.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +49,8 @@ public class PostController {
 
     // 게시글 수정
     @PutMapping("/post")
-    public ResponseEntity<PostResponseDto> deletePost(@RequestParam Long id) {
-        PostResponseDto result = postService.getPostById(id);
+    public ResponseEntity<PostResponseDto> updatePost(@RequestParam Long id, @RequestBody UpdatePostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostResponseDto result = postService.updatePost(id, requestDto, userDetails.getUser());
 
         return ResponseEntity.ok().body(result);
     }
@@ -65,6 +66,19 @@ public class PostController {
         }
     }
 
+    // 태그 추가
+    @PostMapping("/post/{postId}/tag/{tagId}")
+    public ResponseEntity<MsgResponseDto> addTag(@PathVariable Long postId, @PathVariable Long tagId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        postService.addTag(postId, tagId, userDetails.getUser());
+        return ResponseEntity.ok().body(new MsgResponseDto("해시태그 추가 성공", HttpStatus.OK.value()));
+    }
+
+    // 태그에 맞는 글만 조회
+    @GetMapping("/post/tag/{tagId}")
+    public ResponseEntity<PostListResponseDto> getPostsByTag(@PathVariable Long tagId) {
+        PostListResponseDto result = postService.getPostsByTag(tagId);
+        return ResponseEntity.ok().body(result);
+    }
 
 //    @PostMapping("/post/like")
 //    public String like(@RequestParam Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
