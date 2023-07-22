@@ -28,9 +28,6 @@ public class Post extends Timestamped {
     @Column(nullable = false, length = 500)
     private String content;
 
-    @Column
-    private String multiMediaUrl;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -44,16 +41,14 @@ public class Post extends Timestamped {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<PostTag> postTags = new ArrayList<>();
 
-    public Post(PostRequestDto requestDto, User user, String multiMediaUrl) {
+    public Post(PostRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.user = user;
-        this.multiMediaUrl = multiMediaUrl;
     }
 
-    public void updatePost(PostRequestDto requestDto, String multiMediaUrl) {
+    public void updatePost(PostRequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        this.multiMediaUrl = multiMediaUrl;
     }
 }

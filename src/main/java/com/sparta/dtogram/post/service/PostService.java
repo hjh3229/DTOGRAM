@@ -1,6 +1,5 @@
 package com.sparta.dtogram.post.service;
 
-import com.sparta.dtogram.common.service.S3Uploader;
 import com.sparta.dtogram.post.dto.PostRequestDto;
 import com.sparta.dtogram.post.dto.PostResponseDto;
 import com.sparta.dtogram.post.dto.PostsResponseDto;
@@ -17,12 +16,9 @@ import com.sparta.dtogram.user.entity.UserRoleEnum;
 import com.sparta.dtogram.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,17 +36,13 @@ public class PostService {
     private final PostTagRepository postTagRepository;
     private final PostLikeRepository postLikeRepository;
 
-    @Autowired
-    private S3Uploader s3Uploader;
-
     // 게시글 생성
-    public PostResponseDto createPost(PostRequestDto requestDto, User user, MultipartFile multipartFile) throws IOException {
+    public PostResponseDto createPost(PostRequestDto requestDto, User user) {
         log.info("게시글 생성 시도");
 
         try {
             log.info("게시글 생성 성공");
-            String storedFileName = s3Uploader.upload(multipartFile, "postFile");
-            Post post = postRepository.save(new Post(requestDto, user, storedFileName));
+            Post post = postRepository.save(new Post(requestDto, user));
             return new PostResponseDto(post);
         } catch (RejectedExecutionException e) {
             log.error("게시글 생성 실패", e);
@@ -77,11 +69,10 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user, MultipartFile multipartFile) throws IOException{
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
         Post post = findPost(id);
         if (Objects.equals(post.getUser().getId(), user.getId()) || user.getRole().equals(UserRoleEnum.ADMIN)) {
-            String storedFileName = s3Uploader.upload(multipartFile, "postFile");
-            post.updatePost(requestDto, storedFileName);
+            post.updatePost(requestDto);
         } else {
             throw new RuntimeException("Exception ! 작성자가 아닌 게시글 수정 시도 감지");
         }

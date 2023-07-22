@@ -13,9 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.concurrent.RejectedExecutionException;
 
 @Slf4j
@@ -27,10 +25,10 @@ public class PostController {
 
     // 게시글 생성
     @PostMapping("/post")
-    public ResponseEntity<PostResponseDto> createPost(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart PostRequestDto requestDto, @RequestPart MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<PostResponseDto> createPost(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody PostRequestDto requestDto) {
         log.info("게시글 생성 시도");
         try {
-            PostResponseDto result = postService.createPost(requestDto, userDetails.getUser(), multipartFile);
+            PostResponseDto result = postService.createPost(requestDto, userDetails.getUser());
             log.info("게시글 생성 성공");
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {
@@ -55,8 +53,8 @@ public class PostController {
 
     // 게시글 수정
     @PutMapping("/post/{id}")
-    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id, @RequestPart PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart MultipartFile multipartFile) throws IOException{
-        PostResponseDto result = postService.updatePost(id, requestDto, userDetails.getUser(), multipartFile);
+    public ResponseEntity<PostResponseDto> updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostResponseDto result = postService.updatePost(id, requestDto, userDetails.getUser());
 
         return ResponseEntity.ok().body(result);
     }
